@@ -574,7 +574,7 @@ namespace wxreader
                 BackColor = message.IsSender == 1 ? Color.LightGreen : Color.White,
                 AutoSize = true,
                 MaximumSize = new Size(300, 0),
-                Padding = new Padding(10),
+                Padding = new Padding(15),
                 CornerRadius = 15, // 设置圆角半径
                 BorderColor = message.IsSender == 1 ? Color.LightGreen : Color.White, // 设置边框颜色
             };
@@ -607,29 +607,12 @@ namespace wxreader
                 imageMap = textEmotionDict,
                 LabelText = message.StrContent,
                 AutoSize = true,
-                MaximumSize = new Size(280, 0),
-                Padding = new Padding(10, 10, 5, 5),
+                MaximumSize = new Size(260, 0),
                 Font = new Font("Segoe UI Emoji", 9),
-                ForeColor = message.IsSender == 1 ? Color.Black : Color.White,
-                BackColor = message.IsSender == 1 ? Color.LightGreen : Color.White,
-                BorderColor = message.IsSender == 1 ? Color.LightGreen : Color.White, // 设置边框颜色
-                BorderStyle = BorderStyle.FixedSingle,
-                AutoEllipsis = true,
-                TextAlign = ContentAlignment.MiddleCenter,
-                UseMnemonic = false,
+                Padding = new Padding(0)
             };
             
-            ////使用正则表达式匹配表情
-            //string pattern = @"(?<=\[[^\[\]]+\])";
-            //MatchCollection matches = Regex.Matches(message.StrContent, pattern);
-            //foreach (Match match in matches)
-            //{
-            //    string key = match.Value.Trim('[', ']');
-            //    if (textEmotionDict.ContainsKey(key))
-            //    {
-            //        messageLabel.imageMap.Add(key, textEmotionDict[key]);
-            //    }
-            //}
+            
 
             messagePanel.Controls.Add(messageLabel); // 添加标签到文字气泡
             bubblePanel.Controls.Add(messagePanel); // 添加消息面板到气泡面板
