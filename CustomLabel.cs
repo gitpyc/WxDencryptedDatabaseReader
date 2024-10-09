@@ -9,6 +9,7 @@ public class CustomLabel : Label
     public Dictionary<string, Image> imageMap = new Dictionary<string, Image>(); // 存放占位符与图片的映射关系
     private string labelText; // 用于存放文本
     public Color BorderColor { get; set; }
+    public int FontHeight { get; set; }
 
     public string LabelText
     {
@@ -16,7 +17,7 @@ public class CustomLabel : Label
         set
         {
             labelText = value;
-            Invalidate(); // 更新文本后重绘控件
+            //Invalidate(); // 更新文本后重绘控件
         }
     }
 
@@ -32,6 +33,7 @@ public class CustomLabel : Label
         // 当前绘制的水平偏移量和垂直偏移量
         int xOffset = 0;
         int yOffset = 0;
+        int lines = 0;
 
         // 获取最大宽度
         int maxWidth = this.MaximumSize.Width > 0 ? this.MaximumSize.Width : int.MaxValue;
@@ -74,9 +76,10 @@ public class CustomLabel : Label
                         // 换行
                         yOffset += this.Font.Height;
                         xOffset = 0;
+                        lines++;
                     }
 
-                    e.Graphics.DrawString(precedingText, this.Font, new SolidBrush(this.ForeColor), xOffset, yOffset);
+                    e.Graphics.DrawString(precedingText, this.Font, new SolidBrush(this.ForeColor), new RectangleF(xOffset, yOffset, textSize.Width, textSize.Height));
                     xOffset += textSize.Width; // 更新偏移量
                 }
 
@@ -95,6 +98,7 @@ public class CustomLabel : Label
                         // 换行
                         yOffset += this.Font.Height;
                         xOffset = 0;
+                        lines++;
                     }
 
                     // 绘制图片
@@ -117,9 +121,10 @@ public class CustomLabel : Label
                         // 换行
                         yOffset += this.Font.Height;
                         xOffset = 0;
+                        lines++;
                     }
 
-                    e.Graphics.DrawString(remainingText, this.Font, new SolidBrush(this.ForeColor), xOffset, yOffset);
+                    e.Graphics.DrawString(remainingText, this.Font, new SolidBrush(this.ForeColor), new RectangleF(xOffset, yOffset, remainingTextSize.Width, remainingTextSize.Height));
                 }
             }
         }
@@ -132,27 +137,42 @@ public class CustomLabel : Label
                 // 换行
                 yOffset += this.Font.Height;
                 xOffset = 0;
+                lines++;
             }
 
-            e.Graphics.DrawString(labelText, this.Font, new SolidBrush(this.ForeColor), xOffset, yOffset);
+            e.Graphics.DrawString(labelText, this.Font, new SolidBrush(this.ForeColor), new RectangleF(xOffset, yOffset, labelSize.Width, labelSize.Height));
         }
 
         // 计算总宽度和总高度
-        int totalWidth = xOffset + this.Padding.Left + this.Padding.Right;
+        int totalWidth = xOffset + this.Padding.Left+TextRenderer.MeasureText(labelText, this.Font).Width + this.Padding.Right;
         int totalHeight = yOffset + this.Font.Height + this.Padding.Top + this.Padding.Bottom;
+        if (!String.IsNullOrEmpty(labelText) && yOffset == 0)
+        {
+            totalHeight = this.Font.Height + this.Padding.Top + this.Padding.Bottom;
+        }else if(!String.IsNullOrEmpty(labelText) && lines > 0)
+        {
+            totalHeight = (lines + 1) * this.Font.Height + this.Padding.Top + this.Padding.Bottom;
+        }
 
         if (totalWidth != this.Width || totalHeight != this.Height)
         {
-            this.Size = new Size(totalWidth, totalHeight); // 调整控件大小
-            this.Invalidate(); // 重绘控件
+            //this.Size = new Size(totalWidth, totalHeight); // 调整控件大小
+            this.Width = totalWidth;
+            this.Height = totalHeight;
+            this.Update(); // 重绘控件
         }
-        // 绘制边框
+        FontHeight = this.Font.Height*lines;
+        /*// 绘制边框
         using (Pen pen = new Pen(BorderColor))
         {
             e.Graphics.DrawRectangle(pen, 0, 0, this.Width - 1, this.Height - 1);
-        }
+        }*/
         //通知父控件重新布局
         this.Parent.Invalidate();
+        this.Parent.SuspendLayout();
+        // 添加或调整控件
+        this.Parent.ResumeLayout();
+
     }
 
 

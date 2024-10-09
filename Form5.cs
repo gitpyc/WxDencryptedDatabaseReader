@@ -549,7 +549,7 @@ namespace wxreader
                 MaximumSize = new Size(panel1.Width - 20, 0),
                 Padding = new Padding(5),
                 Margin = new Padding(0, 5, 0, 0),
-                WrapContents = false, // 关闭换行
+                WrapContents = true,  // 关闭换行
                 Dock = DockStyle.Top
             };
 
@@ -574,13 +574,13 @@ namespace wxreader
                 BackColor = message.IsSender == 1 ? Color.LightGreen : Color.White,
                 AutoSize = true,
                 MaximumSize = new Size(300, 0),
-                Padding = new Padding(15),
+                Padding = new Padding(5,20,5,5),
                 CornerRadius = 15, // 设置圆角半径
                 BorderColor = message.IsSender == 1 ? Color.LightGreen : Color.White, // 设置边框颜色
             };
 
 
-            /*// 创建消息标签
+            /*// 创建消息标签--最古老版本，不能显示表情，但是文字没有毛病
             Label messageLabel = new Label
             {
                 Text = message.StrContent,
@@ -601,18 +601,37 @@ namespace wxreader
                 }
             };*/
 
+
+            //用的自定义的Label，可以显示表情，但是控制方式有点让人强迫症犯，使用padding来控制，😮，效果不好
             CustomLabel messageLabel = new CustomLabel
             {
                 //Text = message.StrContent,
                 imageMap = textEmotionDict,
                 LabelText = message.StrContent,
                 AutoSize = true,
-                MaximumSize = new Size(260, 0),
+                MaximumSize = new Size(280, 0),
+                Padding = message.IsSender != 1 ?
+                new Padding(TextRenderer.MeasureText(message.StrContent, new Font("Segoe UI Emoji", 9)).Width + 10, FontHeight, 0, 0) :
+                new Padding(0, FontHeight, TextRenderer.MeasureText(message.StrContent, new Font("Segoe UI Emoji", 9)).Width + 10, 0),
                 Font = new Font("Segoe UI Emoji", 9),
-                Padding = new Padding(0)
+                Margin = new Padding(10, 10, 5, 5)
             };
-            
-            
+
+            //效果还不如上面的自定义呢
+            /*CustomRichTextBox messageLabel = new CustomRichTextBox
+            {
+                MaximumSize = new Size(280, 0),
+                Font = new Font("Segoe UI Emoji", 9),
+            };
+            var regex = new Regex(@"\[.+?\]"); // 匹配 "[占位符]"
+            var matches = regex.Matches(message.StrContent);
+            foreach (Match match in matches)
+            {
+                string key = match.Value;
+                messageLabel.AddImage(key, textEmotionDict[key]);
+            }
+            messageLabel.RichTextContent = message.StrContent;*/
+
 
             messagePanel.Controls.Add(messageLabel); // 添加标签到文字气泡
             bubblePanel.Controls.Add(messagePanel); // 添加消息面板到气泡面板
@@ -1120,14 +1139,14 @@ namespace wxreader
                 Dock = DockStyle.Top, // 确保它在最上面
                 Margin = new Padding(0, 30, 0, 30), // 设置上下间距
                                                     //设置左右间距
-                Padding = new Padding(170, 10, 0, 10),
+                Padding = new Padding(100, 10, 0, 10),
                 FlowDirection = FlowDirection.LeftToRight // 左对齐
             };
 
             Label systemMsgLabel = new Label
             {
                 Text = message.StrContent,
-                Size = new Size(150, 20),
+                MaximumSize = new Size(300, 20),
                 Font = new Font("Segoe UI Emoji", 8),
                 ForeColor = Color.White,
                 BackColor = Color.LightGray,
