@@ -54,11 +54,99 @@
 	分辨率展示（图片有大小，有的图片有**高清**，有的只有*预览*）；  
 	![f](Resources/f.png) ![g](Resources/g.png) ![h](Resources/h.png) ![i](Resources/i.png) ![j](Resources/j.png)
 
+##### 数据库及资源文件目录结构
+
+	解密数据库根目录（de\_xxx.db)
+	|
+	|
+	|\---contract(语音文件)
+	|      |
+	|      |--[wxid]
+	|            |
+	|            |--silk(数据库提取的.silk文件)
+	|            |
+	|            |--mp3(程序转码之后的.mp3语音文件)
+	|
+	|
+	|      
+	|\---headimage(头像，高/低清)
+	|      |
+	|      |--\wxid.jpg
+	|
+	|\---MsgAttach
+	|      |
+	|      |--[md5]
+	|           |
+	|           |--Image(高清图)
+	|			|     |
+	|           |     |--xxxx年-xx月
+	|           |            |
+	|           |            |--[md5].dat(加密图片)
+	|           |            |
+	|			|            |--Decode(程序解密后的图片)
+	|           |
+	|           |--Thumb(模糊预览图)
+	|                 |
+	|                 |--xxxx年-xx月
+	|                        |
+	|                        |--[md5].dat(加密模糊图片)
+	|                        |
+	|                        |--Decode(程序解密后的图片)
+	|
+	|---Multi(其他数据库文件)
+	|
+	|
+	|---Video(视频文件)
+	       |
+	       |--xxxx年-xx月
+	             |
+	             |---[md5].mp4(短视频)
+	             |
+	             |---[md5].jpg(视频预览图片)
+	
+
+##### 可执行文件目录结构
+
+	net48
+	|
+	|
+	|---emoji(qq表情组)
+	|
+	|
+	|---FileIcon(文件类型图标，未使用)
+	|
+	|
+	|---libvlc(VLC库)
+	|
+	|
+	|---Resources(资源库，一些图标)
+	|
+	|
+	|---silk-v3-decoder-master(silk解码库，含ffmpeg，结构勿动)
+	|
+	|
+	|---wxemoji(黄豆文字表情，目前整理107个，似乎还差几个，png去背最小框，拿去用)
+	|
+	|
+	|---x64(系统库，勿动)
+	|
+	|
+	|---x86(系统库，勿动)
+	|
+	|
+	|---[xxx].dll(动态库，勿删)
+	|
+	|
+	|---wxreader.exe(主程序，双击即可运行)
+	|
+	|
+	|---其他文件最好也别动，会造成程序不稳定
+
 
 ###### 其他杂事  
 
 > + 如果你觉得有用的话，不妨买瓶水？  
-	![alipay](Resources/alipay.jpg) ![wepay](Resources/wepay.jpg)
+	![pay](Resources/pay.png)
 ***Have fun!***
 
 
