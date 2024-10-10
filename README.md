@@ -40,10 +40,10 @@
 
 > 4. 双击wxreader.exe文件打开程序，提示选择数据库所在路径，之后逐一点击“合并数据”、“dat转换”、“语音解码”，“下载表情”、“下载头像”按钮  
 每个按钮都有对应的进度条，所耗时间有可能很长，有可能很短，与总聊天记录数有关；  
-	![a](https://github.com/gitpyc/WxDencryptedDatabaseReader/tree/master/Resources/a.png) ![b](https://github.com/gitpyc/WxDencryptedDatabaseReader/tree/master/Resources/b.png)
+	![a](Resources/a.png) ![b](Resources/b.png)
 
 > 5. 一切准备好之后“打开联系人列表”会处于可点击状态，然后点击，这个也依赖于的联系人数量，可能很久也可能很快：  
-	>> *上述几个按钮可能有的会报错，不过不要担心，关了重开几次就好了，基本资源处理完成之后打开就快了；*
+>>	*上述几个按钮可能有的会报错，不过不要担心，关了重开几次就好了，基本资源处理完成之后打开就快了；*
 
 > 6. 如果一切顺利你就可以顺利看到联系人列表，有三列，分别为“昵称、备注、消息条数”，包含联系人头像，已经自动降序排序，点击联系人头像即可打开消息记录浏览；
 
