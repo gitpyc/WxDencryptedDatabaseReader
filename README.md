@@ -54,12 +54,12 @@
 	分辨率展示（图片有大小，有的图片有**高清**，有的只有*预览*）；  
 	![f](Resources/f.png) ![g](Resources/g.png) ![h](Resources/h.png) ![i](Resources/i.png) ![j](Resources/j.png)
 
-##### 数据库及资源文件目录结构
+#### 数据库及资源文件目录结构
 
 	解密数据库根目录（de\_xxx.db)
 	|
 	|
-	|\---contract(语音文件)
+	|---contract(语音文件)
 	|      |
 	|      |--[wxid]
 	|            |
@@ -69,11 +69,11 @@
 	|
 	|
 	|      
-	|\---headimage(头像，高/低清)
+	|---headimage(头像，高/低清)
 	|      |
-	|      |--\wxid.jpg
+	|      |--[wxid].jpg
 	|
-	|\---MsgAttach
+	|---MsgAttach
 	|      |
 	|      |--[md5]
 	|           |
@@ -105,7 +105,7 @@
 	             |---[md5].jpg(视频预览图片)
 	
 
-##### 可执行文件目录结构
+#### 可执行文件目录结构
 
 	net48
 	|
