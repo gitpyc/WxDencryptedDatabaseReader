@@ -39,8 +39,8 @@
 > 3. 下载release下的zip文件，解压到本地，至少安装.Net Framework 4.8
 
 > 4. 双击wxreader.exe文件打开程序，提示选择数据库所在路径，之后逐一点击“合并数据”、“dat转换”、“语音解码”，“下载表情”、“下载头像”按钮  
-每个按钮都有对应的进度条，所耗时间有可能很长，有可能很短，与总聊天记录数有关；
-![a](https://github.com/gitpyc/WxDencryptedDatabaseReader/Resources/a.png) ![b](https://github.com/gitpyc/WxDencryptedDatabaseReader/Resources/b.png)
+每个按钮都有对应的进度条，所耗时间有可能很长，有可能很短，与总聊天记录数有关；  
+	![a](https://github.com/gitpyc/WxDencryptedDatabaseReader/tree/master/Resources/a.png) ![b](https://github.com/gitpyc/WxDencryptedDatabaseReader/tree/master/Resources/b.png)
 
 > 5. 一切准备好之后“打开联系人列表”会处于可点击状态，然后点击，这个也依赖于的联系人数量，可能很久也可能很快：  
 	>> *上述几个按钮可能有的会报错，不过不要担心，关了重开几次就好了，基本资源处理完成之后打开就快了；*
