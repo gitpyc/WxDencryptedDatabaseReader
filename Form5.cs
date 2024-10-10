@@ -580,7 +580,7 @@ namespace wxreader
             };
 
 
-            /*// 创建消息标签--最古老版本，不能显示表情，但是文字没有毛病
+            // 创建消息标签--最古老版本，不能显示表情，但是文字没有毛病
             Label messageLabel = new Label
             {
                 Text = message.StrContent,
@@ -599,10 +599,10 @@ namespace wxreader
                     Clipboard.SetText(messageLabel.Text);
                     MessageBox.Show("已复制到剪切板");
                 }
-            };*/
+            };
 
 
-            //用的自定义的Label，可以显示表情，但是控制方式有点让人强迫症犯，使用padding来控制，😮，效果不好
+            /*//用的自定义的Label，可以显示表情，但是控制方式有点让人强迫症犯，使用padding来控制，😮，效果不好
             CustomLabel messageLabel = new CustomLabel
             {
                 //Text = message.StrContent,
@@ -615,7 +615,7 @@ namespace wxreader
                 new Padding(0, FontHeight, TextRenderer.MeasureText(message.StrContent, new Font("Segoe UI Emoji", 9)).Width + 10, 0),
                 Font = new Font("Segoe UI Emoji", 9),
                 Margin = new Padding(10, 10, 5, 5)
-            };
+            };*/
 
             //效果还不如上面的自定义呢
             /*CustomRichTextBox messageLabel = new CustomRichTextBox
