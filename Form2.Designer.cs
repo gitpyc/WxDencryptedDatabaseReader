@@ -60,6 +60,7 @@
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Name = "Contract";
             this.Text = "联系人列表";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Contract_FormClosed);
             this.ResumeLayout(false);
 
         }

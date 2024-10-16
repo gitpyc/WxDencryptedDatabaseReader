@@ -287,5 +287,7 @@ namespace wxreader
         }
 
         public static bool isForm5Show = false;
+
+        public static ObservableString MonitoredVariable { get; set; } = new ObservableString();
     }
 }

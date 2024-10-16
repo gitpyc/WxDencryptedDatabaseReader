@@ -35,7 +35,7 @@ namespace wxreader
         private const int PageSize = 100; // 每次加载的消息条数
         private int currentPage = 0; // 当前页数
         private List<GloableVars.TansMsg> transmsglist;
-        private const int MaxMessages = 120; // 定义最大消息数量
+        private const int MaxMessages = 200; // 定义最大消息数量
 
         private System.Windows.Forms.Timer animationTimer;
         private float animationProgress = 0f;
@@ -1065,7 +1065,7 @@ namespace wxreader
                 //重新设置内部参考点
                 BackColor = message.IsSender == 1 ? Color.LightGreen : Color.White,
                 AutoSize = true,
-                MaximumSize = new Size(300, 0),
+                //MaximumSize = new Size(300, 0),
                 Padding = new Padding(0),
                 CornerRadius = 15, // 设置圆角半径
                 BorderColor = message.IsSender == 1 ? Color.LightGreen : Color.White, // 设置边框颜色
@@ -1091,7 +1091,7 @@ namespace wxreader
                 image = Image.FromFile(AppDomain.CurrentDomain.BaseDirectory + "\\Resources\\videoCall.png");
             }
 
-            if (message.IsSender == 1 && message.IsVoipOrVideoip != 0)
+            if (message.IsSender == 1)
             {
                 image.RotateFlip(RotateFlipType.Rotate180FlipY); //水品翻转图片
             }
@@ -1133,20 +1133,30 @@ namespace wxreader
 
         private void AddSystemMsgBubble(TansMsg message)
         {
+            // 使用TextRenderer来获取消息文本的实际宽度
+            int messageWidth = TextRenderer.MeasureText(message.StrContent, new Font("Segoe UI Emoji", 8)).Width;
+
+            // 根据消息宽度动态设置Padding
+            int leftPadding = (this.Width - 30 - messageWidth) / 2; // 居中对齐的左侧填充
+            int rightPadding = leftPadding; // 右侧填充与左侧相同
             FlowLayoutPanel systemmsgBubblePanel = new FlowLayoutPanel
             {
                 AutoSize = true,
                 Dock = DockStyle.Top, // 确保它在最上面
                 Margin = new Padding(0, 30, 0, 30), // 设置上下间距
-                                                    //设置左右间距
-                Padding = new Padding(100, 10, 0, 10),
+                MaximumSize = new Size(panel1.Width - 20, 0),
+                //根据消息长度自动设置左右间距
+                //Padding = message.StrContent.Length > 100 ? new Padding(100, 10, 0, 10) : new Padding(170, 10, 0, 10),
+                // 根据消息长度自动设置左右Padding以中心对齐
+                //Padding = new Padding(100, 10, 0, 10),
+                Padding = new Padding(leftPadding, 10, rightPadding, 10), // 使用动态计算的填充
                 FlowDirection = FlowDirection.LeftToRight // 左对齐
             };
 
             Label systemMsgLabel = new Label
             {
                 Text = message.StrContent,
-                MaximumSize = new Size(300, 20),
+                Width = messageWidth,
                 Font = new Font("Segoe UI Emoji", 8),
                 ForeColor = Color.White,
                 BackColor = Color.LightGray,

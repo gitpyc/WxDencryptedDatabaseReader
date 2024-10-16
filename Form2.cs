@@ -20,6 +20,8 @@ namespace wxreader
             InitializeComponent();
             wxusers = wxuserlist;
 
+            GloableVars.MonitoredVariable.Value= "Contract is open";
+
             // 设置窗大小随listview大小变化
             this.Size = new Size(450, 650);
             this.CenterToScreen();
@@ -109,5 +111,9 @@ namespace wxreader
 
         }
 
+        private void Contract_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            GloableVars.MonitoredVariable.Value = "Contract is closed";
+        }
     }
 }

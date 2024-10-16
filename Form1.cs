@@ -31,6 +31,8 @@ namespace wxreader
             button6.Enabled = false;
             button7.Enabled = false;
 
+            GloableVars.MonitoredVariable.ValueChanged += MonitoredVariable_ValueChanged; // 订阅事件
+
             //设置后台线程
             worker.WorkerReportsProgress = true;
             worker.WorkerSupportsCancellation = true;
@@ -57,6 +59,11 @@ namespace wxreader
             progressBar3.Minimum = 0;
             progressBar3.Maximum = 100;
             progressBar3.Value = 0;
+        }
+
+        private void MonitoredVariable_ValueChanged(object sender, EventArgs e)
+        {
+            button7.Enabled = !button7.Enabled;
         }
 
         private void RunWorkerCompleted2(object? sender, RunWorkerCompletedEventArgs e)
