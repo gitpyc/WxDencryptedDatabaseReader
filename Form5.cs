@@ -35,7 +35,7 @@ namespace wxreader
         private const int PageSize = 100; // 每次加载的消息条数
         private int currentPage = 0; // 当前页数
         private List<GloableVars.TansMsg> transmsglist;
-        private const int MaxMessages = 200; // 定义最大消息数量
+        private const int MaxMessages = 150; // 定义最大消息数量
 
         private System.Windows.Forms.Timer animationTimer;
         private float animationProgress = 0f;
@@ -574,9 +574,25 @@ namespace wxreader
                 BackColor = message.IsSender == 1 ? Color.LightGreen : Color.White,
                 AutoSize = true,
                 MaximumSize = new Size(300, 0),
-                Padding = new Padding(5,20,5,5),
+                Padding = new Padding(5,20,0,5),
                 CornerRadius = 15, // 设置圆角半径
                 BorderColor = message.IsSender == 1 ? Color.LightGreen : Color.White, // 设置边框颜色
+            };
+
+            string pattern = @"\[.+?\]"; // 匹配"[占位符]"
+
+            // 使用正则表达式提取所有占位符
+            MatchCollection matches = Regex.Matches(message.StrContent, pattern);
+
+
+            // 创建消息面板--2024.10.16新增，效果还是不行
+            CustomMessagePanel custom = new CustomMessagePanel
+            {
+                MessageText = message.StrContent,
+                EmotionDict = textEmotionDict, // 传入表情字典
+                AutoSize = true,
+                Padding = new Padding(0,5,0,0),
+                BackColor = message.IsSender == 1 ? Color.LightGreen : Color.White,
             };
 
 
@@ -633,7 +649,14 @@ namespace wxreader
             messageLabel.RichTextContent = message.StrContent;*/
 
 
-            messagePanel.Controls.Add(messageLabel); // 添加标签到文字气泡
+            if (matches.Count == 0)
+            {
+                messagePanel.Controls.Add(messageLabel); // 添加标签到文字气泡 
+            }
+            else
+            {
+                messagePanel.Controls.Add(custom); // 添加自定义面板到文字气泡
+            }
             bubblePanel.Controls.Add(messagePanel); // 添加消息面板到气泡面板
             // 调用 AddTimestampLabel 函数显示时间
             AddTimestampLabel(Convert.ToInt64(message.CreateTime));
@@ -1434,9 +1457,7 @@ namespace wxreader
                 }
             }
         }
-
         
-
         private void panel1_Scroll(object sender, ScrollEventArgs e)
         {
             // 当滚动到顶部时，加载更多消息
