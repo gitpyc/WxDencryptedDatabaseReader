@@ -14,6 +14,7 @@ public class Golangdecoder
     public static void Fuckit()
     {
         InitImagePrefixBtsMap();
+        
         string filePath = null, outputDir = null;
         GloableVars.imagesDir = new List<string>();
         GloableVars.processedDir = new List<string>();
@@ -41,6 +42,7 @@ public class Golangdecoder
             //outputDir = filePath + "/Decode";
             //检测当前文件夹下是否有dat文件
             var testfile = Directory.GetFiles(filePath, "*.dat", SearchOption.AllDirectories);
+            GloableVars.DatImageCount = testfile.Count();
             //更新进度条并避免阻塞主线程
             var startTime = DateTime.Now;
             //if (testfile.Length > 0)
@@ -231,6 +233,14 @@ public class Golangdecoder
         }
 
         Console.WriteLine("output file： " + distFile.Name);
+        if(GloableVars.ProcessingVariable.Value == null)
+        {
+            GloableVars.ProcessingVariable.Value = "1";
+        }
+        else
+        {
+            GloableVars.ProcessingVariable.Value = (int.Parse(GloableVars.ProcessingVariable.Value) + 1).ToString();
+        }
     }
 
     static void InitImagePrefixBtsMap()

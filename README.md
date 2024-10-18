@@ -58,6 +58,8 @@
 	![f](Resources/f.png) ![g](Resources/g.png) ![h](Resources/h.png) ![i](Resources/i.png) ![j](Resources/j.png)
 
 > 8. 现以支持文本表情混编（emoji），以及部分Unicode表情。
+
+> 9. 头像找不到的时候需要一个默认图片作为头像，使用你喜欢的图片并重命名为**default.jpg**，放到`headimage`目录下即可。
 	
 *注意：不含有表情的文本消息可以右键直接复制*
 

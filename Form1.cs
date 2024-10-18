@@ -33,6 +33,8 @@ namespace wxreader
 
             GloableVars.MonitoredVariable.ValueChanged += MonitoredVariable_ValueChanged; // 订阅事件
 
+            GloableVars.ProcessingVariable.ValueChanged += UpdataProcessingVariable; // 订阅事件
+
             //设置后台线程
             worker.WorkerReportsProgress = true;
             worker.WorkerSupportsCancellation = true;
@@ -64,6 +66,11 @@ namespace wxreader
         private void MonitoredVariable_ValueChanged(object sender, EventArgs e)
         {
             button7.Enabled = !button7.Enabled;
+        }
+
+        private void UpdataProcessingVariable(object sender, EventArgs e)
+        {
+            progressBar2.Value = int.Parse(GloableVars.ProcessingVariable.Value) / GloableVars.DatImageCount;
         }
 
         private void RunWorkerCompleted2(object? sender, RunWorkerCompletedEventArgs e)
@@ -231,12 +238,20 @@ namespace wxreader
                 {
                     if (countmediat > 1)
                     {
-                        sql += "SELECT * FROM " + Path.GetFileNameWithoutExtension(file.filename) + ".Media UNION ";
+                        if (SqliteHelper.NewCheckTableExists(connetions[0].connection, Path.GetFileNameWithoutExtension(file.filename) + ".Media"))
+                        { sql += "SELECT * FROM " + Path.GetFileNameWithoutExtension(file.filename) + ".Media UNION "; }
                         countmediat--;
                     }
                     else if (countmediat == 1)
                     {
-                        sql += "SELECT * FROM " + Path.GetFileNameWithoutExtension(file.filename) + ".Media";
+                        if (SqliteHelper.NewCheckTableExists(connetions[0].connection, Path.GetFileNameWithoutExtension(file.filename) + ".Media"))
+                        {
+                            sql += "SELECT * FROM " + Path.GetFileNameWithoutExtension(file.filename) + ".Media";
+                        }
+                        else
+                        {
+                            sql = sql.Substring(0, sql.Length - 6);//去掉最后的UNION
+                        }
                     }
                 }
                 progress += 1;
@@ -813,7 +828,7 @@ namespace wxreader
         }
 
         //检测GloableVars.filePath是否存在,存在则不操作，不存在则打开文件夹选择对话框
-        private bool CheckFilePath()
+        private bool CheckKeyDBFiles()
         {
             if (GloableVars.filePath == null)
             {
@@ -913,9 +928,9 @@ namespace wxreader
         private void Form1_Load(object sender, EventArgs e)
         {
             MessageBox.Show("请先选择微信解密数据库根目录！");
-            
+
             //thread.Join();
-            
+
             if (GloableVars.selfwxid == "")
             {
                 MessageBox.Show("获取自己的微信ID失败！");
@@ -923,7 +938,7 @@ namespace wxreader
                 return;
             }
 
-            if (!CheckFilePath())
+            if (!CheckKeyDBFiles())
             {
                 Application.Exit();
                 return;
@@ -935,25 +950,33 @@ namespace wxreader
             button2.Enabled = !SqliteHelper.CheckTableExists("TRUEMSG");
 
             // 检测Decode文件夹是否存在
-            var decodefiles = Directory.GetFiles($"{GloableVars.filePath}\\MsgAttach", "*.jpeg", SearchOption.AllDirectories);
-            button3.Enabled = decodefiles.Length == 0;
-            if(!Directory.Exists(Path.Combine(GloableVars.filePath, "MsgAttach")))
+            if (!Directory.Exists(Path.Combine(GloableVars.filePath, "MsgAttach")))
             {
                 MessageBox.Show("MsgAttach文件夹不存在,请从微信安装目录下拷贝该文件夹！");
                 Application.Exit();
                 return;
             }
+            var decodefiles = Directory.GetFiles($"{GloableVars.filePath}\\MsgAttach", "*.jpeg", SearchOption.AllDirectories);
+            button3.Enabled = decodefiles.Length == 0;
+
 
             // 检测MP3文件
-            var mp3files = Directory.GetFiles($"{GloableVars.filePath}\\contract", "*.mp3", SearchOption.AllDirectories);
-            button4.Enabled = mp3files.Length == 0;
             if (!Directory.Exists(Path.Combine(GloableVars.filePath, "contract")))
             {
                 //确认对话框
                 DialogResult result = MessageBox.Show("contract文件夹不存在,是否创建该文件夹？", "提示", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                 if (result == DialogResult.Yes)
                 {
-                    Directory.CreateDirectory(Path.Combine(GloableVars.filePath, "contract"));
+                    try
+                    {
+                        Directory.CreateDirectory(Path.Combine(GloableVars.filePath, "contract"));
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("创建contract文件夹失败！" + ex.Message);
+                        Application.Exit();
+                        return;
+                    }
                 }
                 else
                 {
@@ -961,27 +984,38 @@ namespace wxreader
                     return;
                 }
             }
+            var mp3files = Directory.GetFiles($"{GloableVars.filePath}\\contract", "*.mp3", SearchOption.AllDirectories);
+            button4.Enabled = mp3files.Length == 0;
+
 
             // 检测表情文件
-            var emotionfiles = Directory.GetFiles($"{GloableVars.filePath}\\CustomEmotion", "*.gif", SearchOption.AllDirectories);
-            button6.Enabled = emotionfiles.Length == 0;
             if (!Directory.Exists(Path.Combine(GloableVars.filePath, "CustomEmotion")))
             {
                 MessageBox.Show("CustomEmotion文件夹不存在,请从微信安装目录下拷贝该文件夹！");
                 Application.Exit();
                 return;
             }
+            var emotionfiles = Directory.GetFiles($"{GloableVars.filePath}\\CustomEmotion", "*.gif", SearchOption.AllDirectories);
+            button6.Enabled = emotionfiles.Length == 0;
+
 
             // 检测头像文件夹
-            var headimagefiles = Directory.GetFiles(Path.Combine(GloableVars.filePath, "headimage"), "*.jpg", SearchOption.AllDirectories);
-            button5.Enabled = headimagefiles.Length == 0;
             if (!Directory.Exists(Path.Combine(GloableVars.filePath, "headimage")))
             {
                 //确认对话框
                 DialogResult result = MessageBox.Show("headimage文件夹不存在,是否创建该文件夹？", "提示", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                 if (result == DialogResult.Yes)
                 {
-                    Directory.CreateDirectory(Path.Combine(GloableVars.filePath, "headimage"));
+                    try
+                    {
+                        Directory.CreateDirectory(Path.Combine(GloableVars.filePath, "headimage"));
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("创建headimage文件夹失败！" + ex.Message);
+                        Application.Exit();
+                        return;
+                    }
                 }
                 else
                 {
@@ -989,7 +1023,10 @@ namespace wxreader
                     return;
                 }
             }
-        
+            var headimagefiles = Directory.GetFiles(Path.Combine(GloableVars.filePath, "headimage"), "*.jpg", SearchOption.AllDirectories);
+            button5.Enabled = headimagefiles.Length == 0;
+            
+
             this.Activate();
 
             // 启动一个新的线程来执行耗时操作

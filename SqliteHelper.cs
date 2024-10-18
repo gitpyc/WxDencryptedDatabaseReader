@@ -275,6 +275,17 @@ namespace wxreader
             return exists;
         }
 
+        public static bool NewCheckTableExists(SQLiteConnection conn, string tableName)
+        {
+            string sql = $"SELECT name FROM {tableName.Substring(0, tableName.IndexOf("."))}.sqlite_master WHERE type='table' AND name='{tableName.Substring(tableName.IndexOf(".") + 1)}'";
+            //SQLiteConnection connection = GetConnection(connectionString);
+            SQLiteCommand command = new SQLiteCommand(sql, conn);
+            SQLiteDataReader reader = command.ExecuteReader();
+            bool exists = reader.HasRows;
+            //CloseConnection(connection);
+            return exists;
+        }
+
         // 该方法用于检查指定索引是否存在。
         public static bool CheckIndexExists(string tableName, string indexName)
         {
