@@ -49,6 +49,9 @@ namespace wxreader
         {
             InitializeComponent();
 
+            this.KeyPreview = true; // 确保窗体能够接收键盘事件
+            this.KeyDown += new KeyEventHandler(Form_KeyDown);
+
             //检测对应目录下是否有语音文件,如果没有则进行语音文件解码
             _decodeCompletionSource = new TaskCompletionSource<bool>();
 
@@ -102,6 +105,73 @@ namespace wxreader
             LoadMessage(wxid);
             ShowMessage();
         }
+
+        private void Form_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.G)
+            {
+                string input = Microsoft.VisualBasic.Interaction.InputBox("请输入要跳转到的消息序号：", "跳转消息", "1", -1, -1);
+                if (int.TryParse(input, out int index) && index > 0 && index <= GloableVars.transmsglist.Count)
+                {
+                    // 计算出当前页面
+                    currentPage = (index - 1) / PageSize; // 计算当前页
+                    ShowMessage(); // 显示消息，从指定页面开始
+                }
+                else
+                {
+                    MessageBox.Show("输入的记录序号不正确！");
+                }
+            }
+        }
+
+        private void LoadMessagesAroundIndex(int index)
+        {
+            currentPage = (index - 1) / PageSize; // 计算当前页
+            currentPage = Math.Max(0, currentPage); // 确保页数不小于0
+
+            // 清空现有的消息
+            panel1.Controls.Clear();
+
+            // 控制当前页数，确保不超出范围
+            if (currentPage * PageSize < GloableVars.transmsglist.Count)
+            {
+                var messagesToLoad = GloableVars.transmsglist
+                    .Skip(currentPage * PageSize)
+                    .Take(MaxMessages) // 加载往后150条
+                    .ToList();
+
+                foreach (var message in messagesToLoad)
+                {
+                    // 根据消息类型调用相应的添加方法
+                    switch (message.Type)
+                    {
+                        case 1: // 文字消息
+                            AddChatBubble(message);
+                            break;
+                        case 3: // 图片消息
+                            AddImageBubble(message);
+                            break;
+                        case 34: // 语音消息
+                            AddVoiceBubble(message);
+                            break;
+                        case 43: // 视频消息
+                            AddVideoBubble(message);
+                            break;
+                        case 47: // 动画表情
+                            AddGifBubble(message);
+                            break;
+                        case 50: // 语音电话
+                            AddVoicePhoneBubble(message);
+                            break;
+                        case 10000: // 系统消息
+                            AddSystemMsgBubble(message);
+                            break;
+                            // 可添加其他类型消息的处理
+                    }
+                }
+            }
+        }
+
 
         private string loadStrNameOrNick(string wxid)
         {
