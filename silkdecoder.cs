@@ -49,7 +49,7 @@ namespace wxreader
                 else
                 {
                     Console.WriteLine($"MP3文件已存在，无需转换");
-                    WriteLog(Path.Combine(Path.GetDirectoryName(outputMp3FilePath), "decodesilk.log"), $"{Path.GetFileName(outputMp3FilePath)}文件已存在，无需转换");
+                    //WriteLog(Path.Combine(Path.GetDirectoryName(outputMp3FilePath), "decodesilk.log"), $"{Path.GetFileName(outputMp3FilePath)}文件已存在，无需转换");
                 }
                 // 删除临时文件
                 //File.Delete(tempSilkFilePath);
@@ -114,12 +114,12 @@ namespace wxreader
             // 检查silk_v3_decoder.exe和ffmpeg.exe是否存在
             if (!File.Exists(silkDecoderPath))
             {
-                WriteLog(Path.Combine(Path.GetDirectoryName(outputFilePath), "decodesilk.log"), $"未找到ffmpeg.exe");
+                //WriteLog(Path.Combine(Path.GetDirectoryName(outputFilePath), "decodesilk.log"), $"未找到ffmpeg.exe");
                 throw new FileNotFoundException("未找到silk_v3_decoder.exe,请查看说明");
             }
             if (!File.Exists(ffmpegPath))
             {
-                WriteLog(Path.Combine(Path.GetDirectoryName(outputFilePath), "decodesilk.log"), $"未找到ffmpeg.exe");
+                //WriteLog(Path.Combine(Path.GetDirectoryName(outputFilePath), "decodesilk.log"), $"未找到ffmpeg.exe");
                 throw new FileNotFoundException("未找到ffmpeg.exe,请查看说明");
             }
 
@@ -135,7 +135,7 @@ namespace wxreader
             //}
             if (File.Exists(tempWavFilePath))
             {
-                WriteLog(Path.Combine(Path.GetDirectoryName(outputFilePath), "decodesilk.log"), $"输出文件已存在：{outputFilePath}");
+                //WriteLog(Path.Combine(Path.GetDirectoryName(outputFilePath), "decodesilk.log"), $"输出文件已存在：{outputFilePath}");
                 return;
             }
 
@@ -151,7 +151,8 @@ namespace wxreader
                 int silkExitCode =  ExecuteCommandAsync(silkCommand);
                 if (silkExitCode != 0)
                 {
-                    WriteLog(Path.Combine(Path.GetDirectoryName(outputFilePath), "decodesilk.log"), $"silk_v3_decoder.exe 执行失败，退出代码：{silkExitCode}");
+                    //WriteLog(Path.Combine(Path.GetDirectoryName(outputFilePath), "decodesilk.log"), $"silk_v3_decoder.exe 执行失败，退出代码：{silkExitCode}");
+                    GloableVars.failedDecodeVoiceCount++;
                     return;
                 } 
             }
@@ -162,7 +163,8 @@ namespace wxreader
                 int ffmpegExitCode = ExecuteCommandAsync(ffmpegCommand);
                 if (ffmpegExitCode != 0)
                 {
-                    WriteLog(Path.Combine(Path.GetDirectoryName(outputFilePath), "decodesilk.log"), $"ffmpeg.exe 执行失败，退出代码：{ffmpegExitCode}");
+                    GloableVars.failedDecodeVoiceCount++;
+                    //WriteLog(Path.Combine(Path.GetDirectoryName(outputFilePath), "decodesilk.log"), $"ffmpeg.exe 执行失败，退出代码：{ffmpegExitCode}");
                     return;
                 } 
             }
@@ -173,16 +175,16 @@ namespace wxreader
                 if (File.Exists(tempPcmFilePath))
                 {
                     File.Delete(tempPcmFilePath);
-                    WriteLog(Path.Combine(Path.GetDirectoryName(outputFilePath), "decodesilk.log"), $"临时pcm文件已成功删除：{tempPcmFilePath}");
+                    //WriteLog(Path.Combine(Path.GetDirectoryName(outputFilePath), "decodesilk.log"), $"临时pcm文件已成功删除：{tempPcmFilePath}");
                 }
                 else
                 {
-                    WriteLog(Path.Combine(Path.GetDirectoryName(outputFilePath), "decodesilk.log"), $"临时pcm文件不存在，无需删除：{tempPcmFilePath}");
+                    //WriteLog(Path.Combine(Path.GetDirectoryName(outputFilePath), "decodesilk.log"), $"临时pcm文件不存在，无需删除：{tempPcmFilePath}");
                 }
             }
             catch (Exception ex)
             {
-                WriteLog(Path.Combine(Path.GetDirectoryName(outputFilePath), "decodesilk.log"), $"删除临时pcm文件失败：{tempPcmFilePath}，错误信息：{ex.Message}");
+                //WriteLog(Path.Combine(Path.GetDirectoryName(outputFilePath), "decodesilk.log"), $"删除临时pcm文件失败：{tempPcmFilePath}，错误信息：{ex.Message}");
             }
 
         }

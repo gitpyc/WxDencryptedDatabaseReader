@@ -35,6 +35,8 @@ namespace wxreader
 
             GloableVars.ProcessingVariable.ValueChanged += UpdataProcessingVariable; // 订阅事件
 
+            GloableVars.NoCondition.ValueChanged += NoCondition_ValueChanged; // 订阅事件
+
             //设置后台线程
             worker.WorkerReportsProgress = true;
             worker.WorkerSupportsCancellation = true;
@@ -61,6 +63,25 @@ namespace wxreader
             progressBar3.Minimum = 0;
             progressBar3.Maximum = 100;
             progressBar3.Value = 0;
+        }
+
+        private async void NoCondition_ValueChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                GloableVars.MonitoredVariable.Value = "default.jpg not found!";
+
+                // 确保所有事件处理完成
+                // 延迟一段时间，确保 UI 可以进行处理
+                await Task.Delay(100); // 使用异步延迟
+
+                // 关闭窗体而不是直接退出应用
+                this.Close();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"发生错误: {ex.Message}");
+            }
         }
 
         private void MonitoredVariable_ValueChanged(object sender, EventArgs e)
@@ -387,7 +408,7 @@ namespace wxreader
             if (audioIds.Count == 0)
             {
                 Console.WriteLine($"{strTalker}没有音频数据!");
-                silkdecoder.WriteLog($"{GloableVars.filePath}\\contract\\{strTalker}\\silk", $"{strTalker}没有音频数据!");
+                //silkdecoder.WriteLog($"{GloableVars.filePath}\\contract\\{strTalker}\\silk", $"{strTalker}没有音频数据!");
                 return;
             }
             // 启动多个转换任务
@@ -678,7 +699,7 @@ namespace wxreader
                 }
             }
             progressBar4.Value = 100;
-            MessageBox.Show($"{count}个头像下载完成！");
+            MessageBox.Show($"{count}个头像下载完成，请在{GloableVars.filePath+@"\headimage"}文件夹下放default.jpg作为默认头像！");
             button5.Enabled = true;
 
         }
@@ -692,6 +713,12 @@ namespace wxreader
             if (GloableVars.filePath != null)
             {
                 connection = SqliteHelper.GetConnection(@"Data Source=" + GloableVars.filePath + @"\de_Emotion.db ;Version=3;");
+                encryptedFiles = Directory.GetFiles($"{GloableVars.filePath}\\CustomEmotion", "*", SearchOption.AllDirectories);
+                if (encryptedFiles.Length == 0)
+                {
+                    MessageBox.Show("CustomEmotion文件下没有文件或文件夹不存在！");
+                    return;
+                }
             }
             else
             {
@@ -746,7 +773,7 @@ namespace wxreader
                 return;
             }
             connection.Close();
-            MessageBox.Show("成功获取到" + emotioninfos.Count + "条表情数据！");
+            MessageBox.Show("成功获取到" + emotioninfos.Count + "条表情数据,正在下载中...");
 
             //单任务解密
             int count = 0;
@@ -775,7 +802,7 @@ namespace wxreader
                         }
                         catch (Exception ex)
                         {
-                            silkdecoder.WriteLog($"{Path.GetDirectoryName(file)}.log", ex.Message);
+                            //silkdecoder.WriteLog($"{Path.GetDirectoryName(file)}.log", ex.Message);
                             throw;
                         }
                     }

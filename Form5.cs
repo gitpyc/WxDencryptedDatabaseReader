@@ -49,6 +49,15 @@ namespace wxreader
         {
             InitializeComponent();
 
+            bool isdefaultexist = File.Exists(GloableVars.filePath + @"\\headimage\\default.jpg");
+            if (!isdefaultexist)
+            {
+                MessageBox.Show("default.jpg文件丢失，请仔细阅读说明！");
+                GloableVars.NoCondition.Value = "default.jpg文件丢失，请仔细阅读说明！";
+                //关闭程序
+                this.Close();
+            }
+
             this.KeyPreview = true; // 确保窗体能够接收键盘事件
             this.KeyDown += new KeyEventHandler(Form_KeyDown);
 
@@ -208,7 +217,7 @@ namespace wxreader
             }
             catch (Exception e)
             {
-                silkdecoder.WriteLog(Path.Combine(GloableVars.filePath, "contract", xid, "log.txt"), e.Message);
+                //silkdecoder.WriteLog(Path.Combine(GloableVars.filePath, "contract", xid, "log.txt"), e.Message);
                 _decodeCompletionSource.SetResult(true);
                 return;
             }
@@ -222,7 +231,8 @@ namespace wxreader
             }
             reader.Close();
             conn.Close();
-            while (voicecount != 0)//数量正确则退出循环
+            int count = 0;
+            while (voicecount ==0)//数量正确则退出循环
             {
                 if (mp3Files.Length == 0 || mp3Files.Length != voicecount)
                 {
@@ -242,7 +252,20 @@ namespace wxreader
                             var mp3Dir = Directory.CreateDirectory(GloableVars.filePath + "\\contract\\" + xid + "\\mp3");
                         }
                     }
-                    await Task.Run(() => GloableVars.DecodeVoice(conn, xid));
+                    try
+                    {
+                        await Task.Run(() => GloableVars.DecodeVoice(conn, xid));
+                        count++;
+                    }
+                    catch (Exception)
+                    {
+                        throw;
+                    }
+                    if(count == voicecount)
+                    {
+                        break;
+                    }
+                    //await Task.Run(() => GloableVars.DecodeVoice(conn, xid));
                     /*else
                     {
                         await Task.Run(() => GloableVars.DecodeVoice(conn, xid));

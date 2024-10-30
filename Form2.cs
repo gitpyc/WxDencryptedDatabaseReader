@@ -22,6 +22,8 @@ namespace wxreader
 
             GloableVars.MonitoredVariable.Value= "Contract is open";
 
+            GloableVars.NoCondition.ValueChanged += MonitoredVariable_ValueChanged;// 监听变量变化
+
             // 设置窗大小随listview大小变化
             this.Size = new Size(450, 650);
             this.CenterToScreen();
@@ -54,6 +56,13 @@ namespace wxreader
                 i++;
             }
         }
+
+        private void MonitoredVariable_ValueChanged(object sender, EventArgs e)
+        {
+            //this.Close();
+            GloableVars.isForm5Show = false;
+        }
+
         Form4 form4 = new Form4();
         private void ShowForm4()
         {
@@ -72,13 +81,19 @@ namespace wxreader
         
         private void listView1_MouseClick(object sender, MouseEventArgs e)
         {
-            if(GloableVars.isForm5Show == true)
+            if(GloableVars.isForm5Show)
             {
                 return;
             }
             // 获取鼠标点击的位置
             var hitTestInfo = listView1.HitTest(e.Location);
             //多线程显示form4
+            /*GloableVars.LoadingForm = new Form6();
+            GloableVars.LoadingForm.UpdateLoadingText("正在进行二次语音数据核对，请稍候...");
+            GloableVars.LoadingForm.Show();
+            Thread thread = new Thread(new ThreadStart(GloableVars.ShowLoadingForm));
+            thread.Start();*/
+
             Thread thread = new Thread(new ThreadStart(ShowForm4));
             thread.Start();
 
@@ -96,6 +111,7 @@ namespace wxreader
                 GloableVars.isForm5Show = true;
             }
             CloseForm4();
+            //GloableVars.LoadingForm.Close();
         }
 
         private void AddContact(string name, string remark,Int64  count,string imagePath,int index)

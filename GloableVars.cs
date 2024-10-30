@@ -165,6 +165,8 @@ namespace wxreader
             return voiceList.Count;
         }
 
+        public static int failedDecodeVoiceCount = 0;
+
         public class VideoMessageData
         {
             public string videoPreviewImgLocalPath;
@@ -290,6 +292,28 @@ namespace wxreader
 
         public static ObservableString MonitoredVariable { get; set; } = new ObservableString();
         public static ObservableString ProcessingVariable { get; set; } = new ObservableString();
+
+        public static ObservableString NoCondition { get; set; } = new ObservableString();
         public static int DatImageCount { get; set; } = 0;
+
+        public static bool IsLoadingFormShow { get; set; } = false;
+
+        public static Form6 LoadingForm { get; set; } = null;
+        public static void ShowLoadingForm()
+        {
+            //LoadingForm.Show();
+            IsLoadingFormShow = true;
+        }
+
+        public static void CloseLoadingForm()
+        {
+            if (IsLoadingFormShow)
+            {
+                if (LoadingForm != null && LoadingForm.IsHandleCreated)
+                {
+                    LoadingForm.Invoke(new Action(() => LoadingForm.Close()));
+                }
+            }
+        }
     }
 }
