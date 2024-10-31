@@ -65,6 +65,7 @@
   <ItemGroup>
     <PackageReference Include="AForge.Video" Version="2.2.5" />
     <PackageReference Include="LibVLCSharp" Version="3.9.0" />
+    <PackageReference Include="log4net" Version="3.0.2" />
     <PackageReference Include="Microsoft.VisualBasic" Version="10.3.0" />
     <PackageReference Include="NAudio" Version="2.2.1" />
     <PackageReference Include="System.Data.SQLite" Version="1.0.118" />

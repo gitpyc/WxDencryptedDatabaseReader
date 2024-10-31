@@ -159,13 +159,12 @@ namespace wxreader
             return System.IO.File.Exists(file);
         }
 
-        public static int DecodeVoice(SQLiteConnection connection, string strTalker)
+        public static async void DecodeVoice(SQLiteConnection connection, string strTalker)
         {
-            Form1.DecodeBufAsync(connection, strTalker);
-            return voiceList.Count;
+            await Form1.DecodeBufAsync(connection, strTalker);
         }
 
-        public static int failedDecodeVoiceCount = 0;
+        public static int failedDecodeVoiceCount = 0, successDecodeVoiceCount = 0;
 
         public class VideoMessageData
         {

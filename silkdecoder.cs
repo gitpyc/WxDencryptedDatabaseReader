@@ -1,4 +1,6 @@
-﻿using System;
+﻿using log4net;
+using log4net.Config;
+using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
 using System.Diagnostics;
@@ -10,6 +12,9 @@ namespace wxreader
 {
     public class silkdecoder
     {
+        private static readonly ILog log = LogManager.GetLogger(typeof(Program));
+        private static readonly log4net.ILog loginfo = log4net.LogManager.GetLogger("loginfo");
+        private static readonly log4net.ILog logerror = log4net.LogManager.GetLogger("logerror");
         private readonly SQLiteConnection _connection;
         private readonly SemaphoreSlim _semaphore;
 
@@ -21,6 +26,8 @@ namespace wxreader
 
         public async Task DecodeAudioAsync(string audioId, List<GloableVars.voiceinfo> voiceList, string tempSilkFilePath, string outputMp3FilePath)
         {
+            log4net.GlobalContext.Properties["LogFilePath"] = outputMp3FilePath;
+            XmlConfigurator.Configure();
             await _semaphore.WaitAsync();// 控制并发数
             try
             {
@@ -35,8 +42,17 @@ namespace wxreader
                     // 保存Silk数据为临时文件
                     using (var fileStream = new FileStream(tempSilkFilePath, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize: 4096, useAsync: true))
                     {
-                        await fileStream.WriteAsync(audioData, 0, audioData.Length);
-                        await fileStream.FlushAsync(); // 确保所有数据都写入文件
+                        try
+                        {
+                            await fileStream.WriteAsync(audioData, 0, audioData.Length);
+                            await fileStream.FlushAsync(); // 确保所有数据都写入文件
+                        }
+                        catch (Exception ee)
+                        {
+                            //GloableVars.failedDecodeVoiceCount++;
+                            //WriteLog(Path.Combine(Path.GetDirectoryName(outputMp3FilePath), "decodesilk.log"), $"{Path.GetFileName(outputMp3FilePath)}临时文件保存失败：{ee.Message}");
+                            //logerror.Error($"临时文件保存失败：{ee.Message}");
+                        }
                     }
                 }
 
@@ -44,11 +60,21 @@ namespace wxreader
                 if (File.Exists(tempSilkFilePath) && !File.Exists(outputMp3FilePath))
                 {
                     // 确保临时文件存储完成后再进行转换
-                    await ConvertSilkToMp3Async(tempSilkFilePath, outputMp3FilePath);
+                    try
+                    {
+                        await ConvertSilkToMp3Async(tempSilkFilePath, outputMp3FilePath);
+                    }
+                    catch (Exception ex)
+                    {
+                        GloableVars.failedDecodeVoiceCount++;
+                        //WriteLog(Path.Combine(Path.GetDirectoryName(outputMp3FilePath), "decodesilk.log"), $"{Path.GetFileName(outputMp3FilePath)}mp3文件转换失败：{ex.Message}");
+                        //logerror.Error($"mp3文件转换失败：{ex.Message}");
+                    }
                 }
-                else
+                else if(File.Exists(outputMp3FilePath))
                 {
                     Console.WriteLine($"MP3文件已存在，无需转换");
+                    GloableVars.successDecodeVoiceCount++;
                     //WriteLog(Path.Combine(Path.GetDirectoryName(outputMp3FilePath), "decodesilk.log"), $"{Path.GetFileName(outputMp3FilePath)}文件已存在，无需转换");
                 }
                 // 删除临时文件
@@ -61,6 +87,7 @@ namespace wxreader
                 //调试控制台输出
                 Console.WriteLine($"转换失败：{ex.Message}");
                 //WriteLog(Path.Combine(Path.GetDirectoryName(outputMp3FilePath), "decodesilk.log"), $"{Path.GetFileName(outputMp3FilePath)}文件转换失败：{ex.Message}");
+                //logerror.Error($"文件转换失败：{ex.Message}");
             }
             finally
             {

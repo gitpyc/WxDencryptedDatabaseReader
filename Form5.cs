@@ -61,14 +61,7 @@ namespace wxreader
             this.KeyPreview = true; // 确保窗体能够接收键盘事件
             this.KeyDown += new KeyEventHandler(Form_KeyDown);
 
-            //检测对应目录下是否有语音文件,如果没有则进行语音文件解码
-            _decodeCompletionSource = new TaskCompletionSource<bool>();
-
-            // 创建一个新的任务来调用异步方法
-            Task.Run(async () => await DecodeOnRun(wxid));
-
-            // 等待 DecodeOnRun 完成
-            _decodeCompletionSource.Task.Wait();
+            
 
             LoadImageSource();
             headstring=this.Text = loadStrNameOrNick(wxid);
@@ -111,6 +104,14 @@ namespace wxreader
             {
                 MessageBox.Show("该联系人没有找到聊天记录！");
             }
+            //检测对应目录下是否有语音文件,如果没有则进行语音文件解码
+            _decodeCompletionSource = new TaskCompletionSource<bool>();
+
+            // 创建一个新的任务来调用异步方法
+            Task.Run(async () => await DecodeOnRun(wxid));
+
+            // 等待 DecodeOnRun 完成
+            _decodeCompletionSource.Task.Wait();
             LoadMessage(wxid);
             ShowMessage();
         }
@@ -230,9 +231,23 @@ namespace wxreader
                 }
             }
             reader.Close();
-            conn.Close();
-            int count = 0;
-            while (voicecount ==0)//数量正确则退出循环
+            int count = 0,totalvoicecount = 0, vaildvoicecount = 0,processtime = 0;
+            bool exist = SqliteHelper.CheckTableExists(conn, "ProgramInfo");
+            if (!exist)
+            {
+                SqliteHelper.ExecuteNonQuery(@"CREATE TABLE IF NOT EXISTS ProgramInfo (id INTEGER PRIMARY KEY AUTOINCREMENT,wxid TEXT NOT NULL,TotalMessageCount INTEGER,VoiceMessageCount INTEGER,VaildVoiceMessageCount INTEGER);", conn);
+            }
+            SQLiteDataReader dbreader = SqliteHelper.ExecuteReader($"SELECT * FROM ProgramInfo WHERE wxid='{xid}'", conn);
+            if (dbreader.HasRows)
+            {
+                while (dbreader.Read())
+                {
+                    totalvoicecount = dbreader.GetInt32(dbreader.GetOrdinal("VoiceMessageCount"));
+                    vaildvoicecount = dbreader.GetInt32(dbreader.GetOrdinal("VaildVoiceMessageCount"));
+                }
+            }
+            
+            while (vaildvoicecount ==0 || processtime == 1)//数量正确则退出循环
             {
                 if (mp3Files.Length == 0 || mp3Files.Length != voicecount)
                 {
@@ -255,14 +270,10 @@ namespace wxreader
                     try
                     {
                         await Task.Run(() => GloableVars.DecodeVoice(conn, xid));
-                        count++;
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
-                        throw;
-                    }
-                    if(count == voicecount)
-                    {
+                        MessageBox.Show("语音文件解码失败:"+ex.Message);
                         break;
                     }
                     //await Task.Run(() => GloableVars.DecodeVoice(conn, xid));
@@ -273,11 +284,39 @@ namespace wxreader
                         //_decodeCompletionSource.SetResult(true);
                     }*/
                 }
-                else
+                else if(mp3Files.Length == voicecount)
                 {
                     break;
                 }
+
+                if(processtime == 1)
+                {
+                    try
+                    { 
+                        if(conn.State == ConnectionState.Closed)
+                        {
+                            conn.Open();
+                        }
+                        if (totalvoicecount == 0 && vaildvoicecount == 0)
+                        {
+                            SqliteHelper.ExecuteNonQuery($"INSERT INTO ProgramInfo (wxid,TotalMessageCount,VoiceMessageCount,VaildVoiceMessageCount) VALUES ('{xid}',{GloableVars.truemsglist.Count},{voicecount},{GloableVars.successDecodeVoiceCount})", conn);
+                        }else
+                        {
+                            SqliteHelper.ExecuteNonQuery($"UPDATE ProgramInfo SET TotalMessageCount={GloableVars.truemsglist.Count},VoiceMessageCount={voicecount},VaildVoiceMessageCount={GloableVars.successDecodeVoiceCount} WHERE wxid='{xid}'", conn);
+                        }
+                        totalvoicecount = voicecount;
+                        vaildvoicecount = GloableVars.successDecodeVoiceCount;
+                        break;
+                    }
+                    catch (Exception e)
+                    {
+                        MessageBox.Show(e.Message);
+                        break;
+                    }
+                }
+                processtime++;
             }
+            conn.Close();
             _decodeCompletionSource.SetResult(true);
         }
         private void LoadMessage(string wxid)

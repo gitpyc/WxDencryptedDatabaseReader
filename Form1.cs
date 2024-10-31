@@ -333,6 +333,7 @@ namespace wxreader
             SqliteHelper.ExecuteNonQuery("DROP TABLE IF EXISTS MEGEDMSG", connetions[0].connection);
             SqliteHelper.ExecuteNonQuery("DROP TABLE IF EXISTS MEGEDMEDIA", connetions[0].connection);
             SqliteHelper.ExecuteNonQuery("DROP TABLE IF EXISTS ALLMESG", connetions[0].connection);
+            SqliteHelper.ExecuteNonQuery(@"CREATE TABLE IF NOT EXISTS ProgramInfo (id INTEGER PRIMARY KEY AUTOINCREMENT,wxid TEXT NOT NULL,TotalMessageCount INTEGER,VoiceMessageCount INTEGER,VaildVoiceMessageCount INTEGER);", connetions[0].connection);
             connetions[0].connection.Close();
 
             MessageBox.Show("中间表已删除！");
@@ -415,7 +416,8 @@ namespace wxreader
             var tasks = new List<Task>();
 
             int i = 0;
-
+            GloableVars.successDecodeVoiceCount = 0;
+            GloableVars.failedDecodeVoiceCount = 0;
             foreach (var audioId in audioIds)
             {
                 //int percent = (int)((i + 1) / (double)audioIds.Count * 100);
@@ -441,7 +443,10 @@ namespace wxreader
 
         public static List<GloableVars.voiceinfo> GetAudioIds(SQLiteConnection connection, string strTalker)
         {
-            connection.Open();
+            if (connection.State == System.Data.ConnectionState.Closed)
+            {
+                connection.Open(); 
+            }
             try
             {
                 SQLiteDataReader reader = SqliteHelper.ExecuteReader("SELECT MsgSvrID,Buf FROM TRUEMSG where StrTalker = '" + strTalker + "' and Type=34", connection);//假设这是一个包含MsgSvrID的表名
